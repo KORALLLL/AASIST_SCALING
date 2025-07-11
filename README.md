@@ -35,11 +35,13 @@ git clone https://github.com/your-username/your-repo-name.git # TODO: Replace wi
 cd your-repo-name
 
 # 2. Create and activate a virtual environment (recommended)
-python -m venv venv
+conda create -n aasist python=3.13 --no-default-packages -y
+conda activate aasist
 source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 
 # 3. Install dependencies
-pip install -r requirements.txt
+pip install uv
+uv pip install -r requirements.txt
 ```
 
 This project uses `accelerate` for distributed training. If you haven't used it before, run the configuration wizard:
