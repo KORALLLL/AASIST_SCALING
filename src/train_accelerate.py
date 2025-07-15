@@ -42,8 +42,7 @@ class FocalLoss(nn.Module):
 
         if self.alpha is not None:
             # Apply alpha weighting
-            alpha_t = torch.where(targets == 1, self.alpha, 1 - self.alpha) if isinstance(self.alpha, float) else \
-            self.alpha[targets]
+            alpha_t = torch.where(targets == 1, self.alpha, 1 - self.alpha) if isinstance(self.alpha, float) else self.alpha[targets]
             focal_loss = alpha_t.to(device=inputs.device) * focal_loss
 
         # Apply reduction

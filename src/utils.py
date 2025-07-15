@@ -7,12 +7,10 @@ from metrics import compute_eer, calculate_CLLR, compute_mindcf
 from torch.utils.data import Dataset
 import librosa
 from torch import Tensor
-import argparse
 from RawBoost import ISD_additive_noise, LnL_convolutive_noise, SSI_additive_noise, normWav
 from types import SimpleNamespace
 import yaml
 import os
-import warnings
 
 
 def seed_everything(seed: int = 42):
@@ -213,6 +211,7 @@ def pad(x, max_len=64600):
     padded_x = np.tile(x, (1, num_repeats))[:, :max_len][0]
     return padded_x
 
+
 from augmentations import AudioAugmentor
 
 
@@ -347,9 +346,76 @@ def process_Rawboost_feature(feature, sr, args, algo):
     return feature
 
 
-def load_config(path="/home/user2/AIRI-Spoofy/spoofy/aug_config.yaml"):
+def load_config(path="aug_config.yaml"):
     with open(path, "r") as f:
         config_dict = yaml.safe_load(f)
     return SimpleNamespace(**config_dict)
 
 
+def make_windows(
+    x: np.ndarray,
+    window_size: int = 64_600,
+    step_size: int = 16_150,
+) -> np.ndarray:
+
+    T = x.shape[0]
+
+    if T <= window_size:
+        pad_len = window_size - T
+        x = np.pad(x, (0, pad_len), mode="constant")
+        return x[None, :]
+
+    n_full = 1 + (T - window_size) // step_size
+
+    last_start = n_full * step_size
+    need_tail = last_start < T
+    n_windows = n_full + int(need_tail)
+
+    windows = []
+    for i in range(min(n_full, 32)):
+        s = i * step_size
+        windows.append(x[s:s + window_size])
+
+    if need_tail:
+        tail = x[last_start:]
+        pad_len = window_size - tail.shape[0]
+        tail = np.pad(tail, (0, pad_len), mode="constant")
+        windows.append(tail)
+
+    batch = np.stack(windows, axis=0)
+    # print(windows)
+    return batch
+
+
+class Dataset_ASVspoof5_eval(Dataset):
+    def __init__(self, args,
+                 list_IDs, labels, base_dir,
+                 algo,
+                 is_train: bool = False
+                 ):
+        '''self.list_IDs	: list of strings (each string: utt key),
+           self.labels      : dictionary (key: utt key, value: label integer)
+           is_train      : bool, True
+        '''
+
+        self.list_IDs = list_IDs
+        self.labels = labels
+        self.base_dir = base_dir
+        self.algo = algo
+        self.args = args
+        self.cut = 64600
+        self.is_train = is_train
+
+    def __len__(self):
+        return len(self.list_IDs)
+
+    def __getitem__(self, index):
+
+        utt_id = self.list_IDs[index]
+        X, fs = librosa.load(self.base_dir + utt_id + '.flac', sr=16000)
+
+        X_pad = make_windows(X, self.cut)
+        x_inp = Tensor(X_pad)
+        target = self.labels[utt_id]
+
+        return x_inp, target
