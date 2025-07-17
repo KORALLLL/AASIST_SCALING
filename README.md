@@ -1,7 +1,7 @@
 
-# Enhancing AASIST for Robust Speech Deepfake Detection
+# Towards Scalable AASIST: Refining Graph Attention for Speech Deepfake Detection
 
-This repository contains the official PyTorch implementation for the paper **"Enhancing AASIST for Robust Speech Deepfake Detection"**.
+This repository contains the official PyTorch implementation for the paper **"Towards Scalable AASIST: Refining Graph Attention for Speech Deepfake Detection"**.
 
 In this work, we introduce a series of targeted architectural refinements to the AASIST framework to improve its robustness against sophisticated spoofing attacks.
 
@@ -74,13 +74,14 @@ Our model achieved the following performance on the ASVspoof 5 evaluation set:
 If you use this code or the ideas from our paper in your research, please cite our work:
 
 ```bibtex
-@misc{viakhirev2024enhancing,
-      title={Enhancing AASIST for Robust Speech Deepfake Detection}, 
+@misc{viakhirev2025scalableaasistrefininggraph,
+      title={Towards Scalable AASIST: Refining Graph Attention for Speech Deepfake Detection}, 
       author={Ivan Viakhirev and Daniil Sirota and Aleksandr Smirnov and Kirill Borodin},
       year={2025},
-      eprint={24XX.XXXXX},  -- TODO: Replace with the actual arXiv ID
+      eprint={2507.11777},
       archivePrefix={arXiv},
-      primaryClass={eess.AS}
+      primaryClass={cs.SD},
+      url={https://arxiv.org/abs/2507.11777}, 
 }
 ```
 
